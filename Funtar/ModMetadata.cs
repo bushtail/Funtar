@@ -8,8 +8,8 @@ namespace Funtar;
 [UsedImplicitly]
 public record ModMetadata : AbstractModMetadata
 {
-    public override string ModGuid { get; init; } = "ca.bushtail.untard";
-    public override string Name { get; init; } = "Untar'd";
+    public override string ModGuid { get; init; } = "ca.bushtail.funtar";
+    public override string Name { get; init; } = "Funtar";
     public override string Author { get; init; } = "bushtail";
     public override List<string>? Contributors { get; init; }
     public override Version Version { get; init; } = new(typeof(ModMetadata).Assembly.GetName().Version?.ToString(3));
