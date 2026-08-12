@@ -2,27 +2,24 @@
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.DI;
 using SPTarkov.Server.Core.Models.Common;
-using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Enums;
-using SPTarkov.Server.Core.Services;
+using SPTarkov.Server.Core.Models.Spt.Tables;
 
 namespace Funtar;
 
-[Injectable(TypePriority = OnLoadOrder.PostDBModLoader + 1), UsedImplicitly]
-public class Funtar(DatabaseService databaseService) : IOnLoad
+[Injectable(TypePriority = OnLoadOrder.Preload + 1), UsedImplicitly]
+public class Funtar(TemplateTable templateTable, TradersTable tradersTable, GlobalTable globalTable) : IOnLoad
 {
-    public Task OnLoad()
+    public Task OnLoadAsync(CancellationToken cancellationToken)
     {
-        var itemsDb = databaseService.GetTables().Templates.Items;
-        var traders = databaseService.GetTables().Traders;
-        var globals = databaseService.GetTables().Globals;
+        var itemsDb = templateTable.Items;
         
         if (!itemsDb.TryGetValue(ItemTpl.ARMOR_MFUNTAR_BODY, out var armor) 
-            || !traders.TryGetValue(Traders.PEACEKEEPER, out var peacekeeper)) throw new NullReferenceException();
+            || !tradersTable.TryGetValue(Traders.PEACEKEEPER, out var peacekeeper)) throw new NullReferenceException();
 
         PushToTemplateItemSlots(armor);
-        PushToGlobals(globals);
+        PushToGlobals(globalTable);
         PushToTrader(peacekeeper);
         
         return Task.CompletedTask;
@@ -30,7 +27,7 @@ public class Funtar(DatabaseService databaseService) : IOnLoad
 
     private static void PushToTemplateItemSlots(TemplateItem tpl)
     {
-        List<Slot> _newSlots =
+        List<Slot> newSlots =
         [
             new()
             {
@@ -185,11 +182,11 @@ public class Funtar(DatabaseService databaseService) : IOnLoad
         ];
         var slots = tpl.Properties?.Slots?.ToList();
         if (slots == null) throw new NullReferenceException();
-        _newSlots.AddRange(slots);
-        tpl.Properties!.Slots = _newSlots;
+        newSlots.AddRange(slots);
+        tpl.Properties!.Slots = newSlots;
     }
 
-    private static void PushToGlobals(Globals globals)
+    private static void PushToGlobals(GlobalTable globals)
     {
         var itemPresets = globals.ItemPresets;
         var mfUntarArmor = itemPresets[new MongoId("657121c5f1074598bf0c02c8")];
