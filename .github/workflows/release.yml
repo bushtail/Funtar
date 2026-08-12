@@ -94,10 +94,11 @@ jobs:
             if [ -f "$RESOURCES_DIR/bundles.json" ]; then
               rsync -av "$RESOURCES_DIR/bundles.json" "$TARGET/"
             fi
+
           else
             echo "No Resources folder found — skipping Resources packaging"
-      
-      
+          fi
+
       - name: Zip mod folder
         run: |
           mkdir -p package
